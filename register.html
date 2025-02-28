@@ -6,17 +6,21 @@
     <title>注册</title>
     <script>
         async function register() {
+            console.log("🔹 注册按钮被点击了！");
+
             var id = document.getElementById("id").value.trim();
             var avatar = document.getElementById("avatar").files[0];
             var password = document.getElementById("password").value.trim();
 
             if (!id || !avatar || !password) {
                 alert("请输入 ID、选择头像并设置密钥！");
+                console.log("❌ 缺少输入信息，注册失败");
                 return;
             }
 
             if (!/^\d{4}$/.test(password)) {
                 alert("密钥必须是 4 位数字！");
+                console.log("❌ 密钥格式错误");
                 return;
             }
 
@@ -25,44 +29,47 @@
                 reader.onload = async function(event) {
                     var avatarURL = event.target.result;
 
-                    console.log("正在获取 users.json...");
-                    let response = await fetch('https://raw.githubusercontent.com/你的用户名/你的仓库/main/users.json');
+                    console.log("🔹 获取 `users.json` 数据...");
+                    let response = await fetch('https://raw.githubusercontent.com/shenze404/shenze404.github.io/main/users.json');
                     
                     if (!response.ok) {
-                        throw new Error("无法获取 users.json，可能是路径错误或 GitHub API 限制！");
+                        throw new Error("无法获取 `users.json`，可能是路径错误或 GitHub API 限制！");
                     }
 
                     let users = await response.json();
-                    console.log("当前用户列表：", users);
+                    console.log("✅ `users.json` 获取成功！当前用户列表：", users);
 
                     if (users.some(user => user.id === id)) {
                         alert("此 ID 已被注册，请使用其他 ID！");
+                        console.log("❌ ID 已存在，注册失败");
                         return;
                     }
 
                     users.push({ id: id, avatar: avatarURL, password: password });
-                    console.log("新用户数据：", users);
+                    console.log("✅ 新用户数据已创建：", users);
 
                     await updateGitHub(users);
-
+                    
                     localStorage.setItem("statusMessage", "注册成功！");
                     localStorage.setItem("redirectTarget", "login.html");
                     localStorage.setItem("redirectDelay", 2000);
+                    
+                    console.log("✅ 注册成功！即将跳转到 `status.html`");
                     window.location.href = "status.html";
                 };
                 reader.readAsDataURL(avatar);
             } catch (error) {
                 alert("发生错误：" + error.message);
-                console.error(error);
+                console.error("❌ 发生错误：", error);
             }
         }
 
         async function updateGitHub(data) {
             let token = "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"; // 你的 GitHub Token
-            let url = "https://api.github.com/repos/你的用户名/你的仓库/contents/users.json";
+            let url = "https://api.github.com/repos/shenze404/shenze404.github.io/contents/users.json";
 
             try {
-                console.log("正在获取 GitHub 文件信息...");
+                console.log("🔹 获取 GitHub 上的 `users.json`...");
                 let response = await fetch(url, { headers: { Authorization: `token ${token}` } });
                 
                 if (!response.ok) {
@@ -72,7 +79,7 @@
                 let fileData = await response.json();
                 let updatedContent = btoa(JSON.stringify(data, null, 2));
 
-                console.log("正在更新 users.json...");
+                console.log("🔹 开始更新 `users.json`...");
                 await fetch(url, {
                     method: "PUT",
                     headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
@@ -83,10 +90,10 @@
                     })
                 });
 
-                console.log("users.json 更新成功！");
+                console.log("✅ `users.json` 更新成功！");
             } catch (error) {
                 alert("GitHub API 错误：" + error.message);
-                console.error(error);
+                console.error("❌ GitHub API 错误：", error);
             }
         }
     </script>
