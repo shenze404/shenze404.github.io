@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>测试</title>
-    <link rel="stylesheet" href="style.css"> <!-- 连接CSS -->
+    <link rel="stylesheet" href="style.css">
     <script>
         function loadUser() {
-            var id = localStorage.getItem("currentUser");
+            var user = localStorage.getItem("currentUser");
             var userInfoDiv = document.getElementById("user-info");
 
-            if (!id) {
+            if (!user) {
                 userInfoDiv.innerHTML = "<a href='login.html' class='button'>登录</a>";
                 return;
             }
 
-            var user = JSON.parse(localStorage.getItem(id));
+            user = JSON.parse(user);
             userInfoDiv.innerHTML = `
                 <img src="${user.avatar}" width="40" height="40" style="border-radius:50%; vertical-align: middle;">
                 <a href="profile.html" style="color: yellow; font-weight: bold; text-decoration: none; vertical-align: middle;">${user.id}</a>
@@ -28,7 +28,7 @@
         <div id="user-info" style="position: absolute; right: 20px; top: 20px;"></div>
         <h1>这是一个正在进行的测试</h1>
     </header>
-    
+
     <nav>
         <ul>
             <li><a href="characters.html">角色介绍</a></li>
