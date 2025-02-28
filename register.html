@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册</title>
+    <script>
+        function register() {
+            var id = document.getElementById("id").value.trim();
+            var avatar = document.getElementById("avatar").files[0];
+            var password = document.getElementById("password").value.trim();
+
+            // 检查 ID 是否已存在
+            if (localStorage.getItem(id)) {
+                alert("此 ID 已被注册，请使用其他 ID！");
+                return;
+            }
+
+            // 确保 ID 不能为空
+            if (id === "") {
+                alert("ID 不能为空！");
+                return;
+            }
+
+            // 检查密钥是否是 4 位数字
+            if (!/^\d{4}$/.test(password)) {
+                alert("密钥必须是 4 位数字！");
+                return;
+            }
+
+            // 读取头像文件
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                var avatarURL = event.target.result; // 头像的 Base64 编码
+
+                // 存储用户信息
+                var userData = { id: id, avatar: avatarURL, password: password };
+                localStorage.setItem(id, JSON.stringify(userData));
+
+                alert("注册成功！");
+                window.location.href = "login.html"; // 跳转到登录页面
+            };
+            reader.readAsDataURL(avatar);
+        }
+    </script>
+</head>
+<body>
+    <h1>注册</h1>
+    <label>用户 ID：</label>
+    <input type="text" id="id" required><br><br>
+
+    <label>上传头像：</label>
+    <input type="file" id="avatar" accept="image/*" required><br><br>
+
+    <label>设置密钥（4 位数字）：</label>
+    <input type="password" id="password" maxlength="4" required placeholder="请设置四位数字"><br><br>
+
+    <button onclick="register()">注册</button>
+    <p>已有账号？<a href="login.html" style="color: blue; text-decoration: underline;">点击登录</a></p>
+</body>
+</html>
