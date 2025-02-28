@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>状态</title>
+    <script>
+        function displayMessage() {
+            var message = localStorage.getItem("statusMessage") || "操作成功！";
+            var target = localStorage.getItem("redirectTarget") || "index.html";
+            var delay = localStorage.getItem("redirectDelay") || 2000;
+
+            document.getElementById("message").innerText = message;
+            
+            setTimeout(() => {
+                window.location.href = target;
+            }, delay); // 2~3 秒后跳转
+        }
+    </script>
+</head>
+<body onload="displayMessage()">
+    <h1 id="message">请稍候...</h1>
+    <p>正在跳转，请稍候...</p>
+</body>
+</html>
