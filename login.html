@@ -1,1 +1,44 @@
-<h1>这里是登录页面</h1>
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+    <script>
+        function login() {
+            var id = document.getElementById("id").value.trim();
+            var password = document.getElementById("password").value.trim();
+
+            // 获取用户数据
+            var userData = localStorage.getItem(id);
+            if (!userData) {
+                alert("用户不存在！");
+                return;
+            }
+
+            // 解析用户数据
+            var user = JSON.parse(userData);
+            if (user.password !== password) {
+                alert("密钥错误！");
+                return;
+            }
+
+            // 存储当前登录的用户
+            localStorage.setItem("currentUser", id);
+            alert("登录成功！");
+            window.location.href = "index.html"; // 跳转到主页
+        }
+    </script>
+</head>
+<body>
+    <h1>登录</h1>
+    <label>用户 ID：</label>
+    <input type="text" id="id" required><br><br>
+
+    <label>输入密钥：</label>
+    <input type="password" id="password" maxlength="4" required><br><br>
+
+    <button onclick="login()">登录</button>
+    <p>还没有账号？<a href="register.html" style="color: blue; text-decoration: underline;">点击注册</a></p>
+</body>
+</html>
