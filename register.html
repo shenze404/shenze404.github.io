@@ -20,7 +20,6 @@
                 return;
             }
 
-            // 读取头像文件
             var reader = new FileReader();
             reader.onload = async function(event) {
                 var avatarURL = event.target.result;
@@ -29,13 +28,11 @@
                 let response = await fetch('https://raw.githubusercontent.com/你的用户名/你的仓库/main/users.json');
                 let users = await response.json();
 
-                // 检查 ID 是否已存在
                 if (users.some(user => user.id === id)) {
                     alert("此 ID 已被注册，请使用其他 ID！");
                     return;
                 }
 
-                // 添加新用户
                 users.push({ id: id, avatar: avatarURL, password: password });
 
                 // 上传更新后的 `users.json`
@@ -48,7 +45,7 @@
         }
 
         async function updateGitHub(data) {
-            let token = "你的 GitHub Token"; // 这里需要 GitHub Token（下一步会教你如何获取）
+            let token = "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"; // 你的 GitHub Token
             let url = "https://api.github.com/repos/你的用户名/你的仓库/contents/users.json";
 
             let response = await fetch(url, { headers: { Authorization: `token ${token}` } });
