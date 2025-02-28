@@ -30,13 +30,20 @@
                     var avatarURL = event.target.result;
 
                     console.log("🔹 获取 `users.json` 数据...");
-                    let response = await fetch('https://raw.githubusercontent.com/shenze404/shenze404.github.io/main/users.json');
-                    
+                    let response = await fetch('https://api.github.com/repos/shenze404/shenze404.github.io/contents/users.json', {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `token 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`,
+                            "Accept": "application/vnd.github.v3+json"
+                        }
+                    });
+
                     if (!response.ok) {
                         throw new Error("无法获取 `users.json`，可能是路径错误或 GitHub API 限制！");
                     }
 
-                    let users = await response.json();
+                    let fileData = await response.json();
+                    let users = JSON.parse(atob(fileData.content)); // Base64 解码 JSON
                     console.log("✅ `users.json` 获取成功！当前用户列表：", users);
 
                     if (users.some(user => user.id === id)) {
@@ -48,7 +55,7 @@
                     users.push({ id: id, avatar: avatarURL, password: password });
                     console.log("✅ 新用户数据已创建：", users);
 
-                    await updateGitHub(users);
+                    await updateGitHub(users, fileData.sha);
                     
                     localStorage.setItem("statusMessage", "注册成功！");
                     localStorage.setItem("redirectTarget", "login.html");
@@ -64,30 +71,25 @@
             }
         }
 
-        async function updateGitHub(data) {
-            let token = "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"; // 你的 GitHub Token
+        async function updateGitHub(data, sha) {
+            let token = "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";
             let url = "https://api.github.com/repos/shenze404/shenze404.github.io/contents/users.json";
 
             try {
-                console.log("🔹 获取 GitHub 上的 `users.json`...");
-                let response = await fetch(url, { headers: { Authorization: `token ${token}` } });
-                
-                if (!response.ok) {
-                    throw new Error("无法访问 GitHub API，请检查 Token 或仓库权限！");
-                }
-
-                let fileData = await response.json();
-                let sha = fileData.sha;  // 获取文件 SHA
+                console.log("🔹 开始更新 `users.json`...");
                 let updatedContent = btoa(JSON.stringify(data, null, 2)); // Base64 编码数据
 
-                console.log("🔹 开始更新 `users.json`...");
                 let updateResponse = await fetch(url, {
                     method: "PUT",
-                    headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
+                    headers: {
+                        "Authorization": `token ${token}`,
+                        "Accept": "application/vnd.github.v3+json",
+                        "Content-Type": "application/json"
+                    },
                     body: JSON.stringify({
                         message: "更新用户数据",
                         content: updatedContent,
-                        sha: sha  // 需要提供 `sha` 以更新文件
+                        sha: sha // 需要提供 `sha` 以更新文件
                     })
                 });
 
