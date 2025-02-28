@@ -6,12 +6,13 @@
     <title>测试</title>
     <link rel="stylesheet" href="style.css">
     <script>
-        function loadUser() {
-            var user = localStorage.getItem("currentUser");
+        async function loadUser() {
             var userInfoDiv = document.getElementById("user-info");
+            var loginButtonDiv = document.getElementById("login-button");
 
+            var user = localStorage.getItem("currentUser");
             if (!user) {
-                userInfoDiv.innerHTML = "<a href='login.html' class='button'>登录</a>";
+                loginButtonDiv.innerHTML = "<a href='login.html' class='button'>登录</a>";
                 return;
             }
 
@@ -28,7 +29,7 @@
         <div id="user-info" style="position: absolute; right: 20px; top: 20px;"></div>
         <h1>这是一个正在进行的测试</h1>
     </header>
-
+    
     <nav>
         <ul>
             <li><a href="characters.html">角色介绍</a></li>
@@ -43,6 +44,9 @@
     <main>
         <h2>最新消息</h2>
         <p>沈迟又抽我了</p>
+
+        <!-- 登录按钮现在在 "最新消息" 下方 -->
+        <div id="login-button"></div>
     </main>
 
     <footer>
