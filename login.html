@@ -5,28 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录</title>
     <script>
-        function login() {
+        async function login() {
             var id = document.getElementById("id").value.trim();
             var password = document.getElementById("password").value.trim();
 
-            // 获取用户数据
-            var userData = localStorage.getItem(id);
-            if (!userData) {
-                alert("用户不存在！");
+            let response = await fetch('https://raw.githubusercontent.com/你的用户名/你的仓库/main/users.json');
+            let users = await response.json();
+
+            let user = users.find(user => user.id === id && user.password === password);
+            if (!user) {
+                alert("ID 或密钥错误！");
                 return;
             }
 
-            // 解析用户数据
-            var user = JSON.parse(userData);
-            if (user.password !== password) {
-                alert("密钥错误！");
-                return;
-            }
-
-            // 存储当前登录的用户
-            localStorage.setItem("currentUser", id);
+            localStorage.setItem("currentUser", JSON.stringify(user));
             alert("登录成功！");
-            window.location.href = "index.html"; // 跳转到主页
+            window.location.href = "index.html";
         }
     </script>
 </head>
@@ -39,10 +33,7 @@
     <input type="password" id="password" maxlength="4" required><br><br>
 
     <button onclick="login()">登录</button>
-
     <p>还没有账号？<a href="register.html" style="color: blue; text-decoration: underline;">点击注册</a></p>
-
-    <!-- 新增 "返回主页" 按钮 -->
-    <button onclick="window.location.href='index.html'" style="margin-top: 20px;">返回主页</button>
+    <button onclick="window.location.href='index.html'">返回主页</button>
 </body>
 </html>
