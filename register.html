@@ -1,85 +1,110 @@
-<script>
-    async function register() {
-        var id = document.getElementById("id").value.trim();
-        var avatar = document.getElementById("avatar").files[0];
-        var password = document.getElementById("password").value.trim();
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册</title>
+    <script>
+        async function register() {
+            var id = document.getElementById("id").value.trim();
+            var avatar = document.getElementById("avatar").files[0];
+            var password = document.getElementById("password").value.trim();
 
-        if (id === "" || password === "") {
-            alert("ID 和密钥不能为空！");
-            return;
-        }
-
-        if (!/^\d{4}$/.test(password)) {
-            alert("密钥必须是 4 位数字！");
-            return;
-        }
-
-        var reader = new FileReader();
-        reader.onload = async function(event) {
-            var avatarURL = event.target.result;
-
-            let response = await fetch('https://raw.githubusercontent.com/你的用户名/你的仓库/main/users.json');
-            let users = await response.json();
-
-            if (users.some(user => user.id === id)) {
-                alert("此 ID 已被注册，请使用其他 ID！");
+            // **检查输入是否为空**
+            if (!id || !avatar || !password) {
+                alert("请输入 ID、选择头像并设置密钥！");
                 return;
             }
 
-            users.push({ id: id, avatar: avatarURL, password: password });
-
-            await updateGitHub(users);
-
-            // 设置跳转目标为登录页面
-            localStorage.setItem("statusMessage", "注册成功！");
-            localStorage.setItem("redirectTarget", "login.html");
-            localStorage.setItem("redirectDelay", 2000);
-
-            // 跳转到状态页面
-            window.location.href = "status.html";
-        };
-        reader.readAsDataURL(avatar);
-    }
-</script><script>
-    async function register() {
-        var id = document.getElementById("id").value.trim();
-        var avatar = document.getElementById("avatar").files[0];
-        var password = document.getElementById("password").value.trim();
-
-        if (id === "" || password === "") {
-            alert("ID 和密钥不能为空！");
-            return;
-        }
-
-        if (!/^\d{4}$/.test(password)) {
-            alert("密钥必须是 4 位数字！");
-            return;
-        }
-
-        var reader = new FileReader();
-        reader.onload = async function(event) {
-            var avatarURL = event.target.result;
-
-            let response = await fetch('https://raw.githubusercontent.com/你的用户名/你的仓库/main/users.json');
-            let users = await response.json();
-
-            if (users.some(user => user.id === id)) {
-                alert("此 ID 已被注册，请使用其他 ID！");
+            if (!/^\d{4}$/.test(password)) {
+                alert("密钥必须是 4 位数字！");
                 return;
             }
 
-            users.push({ id: id, avatar: avatarURL, password: password });
+            try {
+                var reader = new FileReader();
+                reader.onload = async function(event) {
+                    var avatarURL = event.target.result;
 
-            await updateGitHub(users);
+                    // **获取 users.json 数据**
+                    let response = await fetch('https://raw.githubusercontent.com/你的用户名/你的仓库/main/users.json');
 
-            // 设置跳转目标为登录页面
-            localStorage.setItem("statusMessage", "注册成功！");
-            localStorage.setItem("redirectTarget", "login.html");
-            localStorage.setItem("redirectDelay", 2000);
+                    if (!response.ok) {
+                        throw new Error("无法获取用户数据，请检查 users.json 是否存在！");
+                    }
 
-            // 跳转到状态页面
-            window.location.href = "status.html";
-        };
-        reader.readAsDataURL(avatar);
-    }
-</script>
+                    let users = await response.json();
+
+                    // **检查 ID 是否已存在**
+                    if (users.some(user => user.id === id)) {
+                        alert("此 ID 已被注册，请使用其他 ID！");
+                        return;
+                    }
+
+                    // **添加新用户**
+                    users.push({ id: id, avatar: avatarURL, password: password });
+
+                    // **上传更新后的 users.json**
+                    await updateGitHub(users);
+
+                    // **设置跳转目标为登录页面**
+                    localStorage.setItem("statusMessage", "注册成功！");
+                    localStorage.setItem("redirectTarget", "login.html");
+                    localStorage.setItem("redirectDelay", 2000);
+
+                    // **跳转到状态页面**
+                    window.location.href = "status.html";
+                };
+                reader.readAsDataURL(avatar);
+            } catch (error) {
+                alert("发生错误：" + error.message);
+                console.error(error);
+            }
+        }
+
+        async function updateGitHub(data) {
+            let token = "你的 GitHub Token"; // 这里替换为你的 GitHub Token
+            let url = "https://api.github.com/repos/你的用户名/你的仓库/contents/users.json";
+
+            try {
+                let response = await fetch(url, { headers: { Authorization: `token ${token}` } });
+                
+                if (!response.ok) {
+                    throw new Error("无法访问 GitHub API，请检查 Token 或仓库权限！");
+                }
+
+                let fileData = await response.json();
+                let updatedContent = btoa(JSON.stringify(data, null, 2)); // Base64 编码
+
+                await fetch(url, {
+                    method: "PUT",
+                    headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        message: "更新用户数据",
+                        content: updatedContent,
+                        sha: fileData.sha
+                    })
+                });
+
+            } catch (error) {
+                alert("GitHub API 错误：" + error.message);
+                console.error(error);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>注册</h1>
+    <label>用户 ID：</label>
+    <input type="text" id="id" required><br><br>
+
+    <label>上传头像：</label>
+    <input type="file" id="avatar" accept="image/*" required><br><br>
+
+    <label>设置密钥（4 位数字）：</label>
+    <input type="password" id="password" maxlength="4" required placeholder="请设置四位数字"><br><br>
+
+    <button onclick="register()">注册</button>
+    <button onclick="window.location.href='index.html'">返回主页</button>
+</body>
+</html>
