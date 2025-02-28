@@ -5,9 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>测试</title>
     <link rel="stylesheet" href="style.css"> <!-- 连接CSS -->
+    <script>
+        function loadUser() {
+            var id = localStorage.getItem("currentUser");
+            var userInfoDiv = document.getElementById("user-info");
+
+            if (!id) {
+                userInfoDiv.innerHTML = "<a href='login.html' class='button'>登录</a>";
+                return;
+            }
+
+            var user = JSON.parse(localStorage.getItem(id));
+            userInfoDiv.innerHTML = `
+                <img src="${user.avatar}" width="40" height="40" style="border-radius:50%; vertical-align: middle;">
+                <a href="profile.html" style="color: yellow; font-weight: bold; text-decoration: none; vertical-align: middle;">${user.id}</a>
+            `;
+        }
+    </script>
 </head>
-<body>
+<body onload="loadUser()">
     <header>
+        <div id="user-info" style="position: absolute; right: 20px; top: 20px;"></div>
         <h1>这是一个正在进行的测试</h1>
     </header>
     
@@ -25,7 +43,6 @@
     <main>
         <h2>最新消息</h2>
         <p>沈迟又抽我了</p>
-        <a href="login.html" class="button">登录</a>
     </main>
 
     <footer>
