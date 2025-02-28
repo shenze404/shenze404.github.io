@@ -77,18 +77,23 @@
                 }
 
                 let fileData = await response.json();
-                let updatedContent = btoa(JSON.stringify(data, null, 2));
+                let sha = fileData.sha;  // 获取文件 SHA
+                let updatedContent = btoa(JSON.stringify(data, null, 2)); // Base64 编码数据
 
                 console.log("🔹 开始更新 `users.json`...");
-                await fetch(url, {
+                let updateResponse = await fetch(url, {
                     method: "PUT",
                     headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         message: "更新用户数据",
                         content: updatedContent,
-                        sha: fileData.sha
+                        sha: sha  // 需要提供 `sha` 以更新文件
                     })
                 });
+
+                if (!updateResponse.ok) {
+                    throw new Error("无法更新 `users.json`，可能是 API 限制或 Token 权限不足！");
+                }
 
                 console.log("✅ `users.json` 更新成功！");
             } catch (error) {
